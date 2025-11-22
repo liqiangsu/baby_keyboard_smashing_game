@@ -66,6 +66,11 @@ class BabyKeyboardGame {
             emojiMode: true
         };
         
+        // Input history tracking
+        this.inputHistory = [];
+        this.maxHistoryLength = 20; // Show last 20 key presses
+        this.historyElement = null;
+        
         this.init();
     }
     
@@ -107,6 +112,7 @@ class BabyKeyboardGame {
         this.parentControls = document.getElementById('parentControls');
         this.soundStatus = document.getElementById('soundStatus');
         this.fullscreenBtn = document.getElementById('fullscreenBtn');
+        this.historyElement = document.getElementById('historyKeys');
         
         if (!this.canvas) {
             throw new Error('Game canvas not found');
@@ -417,6 +423,9 @@ class BabyKeyboardGame {
         // Activate keyboard handler
         this.keyboardHandler.setGameActive(true);
         
+        // Clear input history and update display
+        this.clearInputHistory();
+        
         // Start game loop
         this.startGameLoop();
         
@@ -631,6 +640,9 @@ class BabyKeyboardGame {
             // Update statistics
             this.stats.totalKeyPresses++;
             
+            // Add to input history
+            this.addToInputHistory(keyInfo);
+            
             debugLog(`Key processed: ${keyInfo.key} (${keyInfo.type}, ${keyInfo.effect})`);
         }
     }
@@ -660,6 +672,70 @@ class BabyKeyboardGame {
         if (this.keyDisplays.length > 10) {
             this.keyDisplays.shift();
         }
+    }
+    
+    addToInputHistory(keyInfo) {
+        // Create display text for the key
+        let displayText = '';
+        
+        if (keyInfo.key.length === 1) {
+            // Single character keys (letters, numbers, symbols)
+            displayText = keyInfo.key.toUpperCase();
+        } else {
+            // Special keys with readable names
+            switch (keyInfo.key) {
+                case ' ':
+                case 'Space':
+                    displayText = 'SPC';
+                    break;
+                case 'Enter':
+                    displayText = 'ENT';
+                    break;
+                case 'Tab':
+                    displayText = 'TAB';
+                    break;
+                case 'ArrowUp':
+                    displayText = '↑';
+                    break;
+                case 'ArrowDown':
+                    displayText = '↓';
+                    break;
+                case 'ArrowLeft':
+                    displayText = '←';
+                    break;
+                case 'ArrowRight':
+                    displayText = '→';
+                    break;
+                default:
+                    displayText = keyInfo.code.replace('Key', '').replace('Digit', '');
+            }
+        }
+        
+        // Add to history array
+        this.inputHistory.push(displayText);
+        
+        // Keep only the most recent entries
+        if (this.inputHistory.length > this.maxHistoryLength) {
+            this.inputHistory.shift();
+        }
+        
+        // Update the display
+        this.updateInputHistoryDisplay();
+    }
+    
+    updateInputHistoryDisplay() {
+        if (!this.historyElement) return;
+        
+        // Join with spaces and display
+        const historyText = this.inputHistory.length > 0 
+            ? this.inputHistory.join(' ') 
+            : 'Press keys to see history here';
+        this.historyElement.textContent = historyText;
+    }
+    
+    clearInputHistory() {
+        this.inputHistory = [];
+        this.updateInputHistoryDisplay();
     }
     
     handleParentControl(action, event) {
@@ -702,6 +778,9 @@ class BabyKeyboardGame {
         
         // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Clear input history
+        this.clearInputHistory();
         
         announceToScreenReader('Screen cleared');
         debugLog('Screen cleared');
