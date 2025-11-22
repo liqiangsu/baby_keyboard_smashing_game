@@ -77,8 +77,8 @@ export function getRandomColors(count) {
 
 /**
  * Generate random number between min and max (inclusive)
- * @param {number} min 
- * @param {number} max 
+ * @param {number} min
+ * @param {number} max
  * @returns {number}
  */
 export function randomBetween(min, max) {
@@ -87,8 +87,8 @@ export function randomBetween(min, max) {
 
 /**
  * Generate random integer between min and max (inclusive)
- * @param {number} min 
- * @param {number} max 
+ * @param {number} min
+ * @param {number} max
  * @returns {number}
  */
 export function randomIntBetween(min, max) {
@@ -102,7 +102,7 @@ export function randomIntBetween(min, max) {
  */
 export function getRandomEmoji(category = 'all') {
     const { emojis } = CONFIG;
-    
+
     if (category === 'all') {
         // Get random emoji from all categories
         const allCategories = Object.keys(emojis);
@@ -110,12 +110,12 @@ export function getRandomEmoji(category = 'all') {
         const categoryEmojis = emojis[randomCategory];
         return categoryEmojis[Math.floor(Math.random() * categoryEmojis.length)];
     }
-    
+
     if (emojis[category]) {
         const categoryEmojis = emojis[category];
         return categoryEmojis[Math.floor(Math.random() * categoryEmojis.length)];
     }
-    
+
     // Fallback to a happy face if category not found
     return '😊';
 }
@@ -138,7 +138,7 @@ export function getEmojiForKey(keyType, keyChar) {
                 'u': '☂️', 'v': '🚐', 'w': '🐋', 'x': '❌', 'y': '💛', 'z': '🦓'
             };
             return letterEmojiMap[keyChar?.toLowerCase()] || getRandomEmoji('animals');
-            
+
         case 'number':
             // Numbers get counting emojis or number-related items
             const numberEmojiMap = {
@@ -146,19 +146,19 @@ export function getEmojiForKey(keyType, keyChar) {
                 '5': '5️⃣', '6': '6️⃣', '7': '7️⃣', '8': '8️⃣', '9': '9️⃣'
             };
             return numberEmojiMap[keyChar] || getRandomEmoji('toys');
-            
+
         case 'space':
             return '🚀'; // Space = rocket
-            
+
         case 'enter':
             return '⭐'; // Enter = star
-            
+
         case 'arrow':
             return '🏃'; // Arrow = running
-            
+
         case 'punctuation':
             return getRandomEmoji('faces');
-            
+
         default:
             return getRandomEmoji('toys');
     }
@@ -175,8 +175,8 @@ export function setEmojiMode(enabled) {
 
 /**
  * Get random position on canvas with padding
- * @param {number} canvasWidth 
- * @param {number} canvasHeight 
+ * @param {number} canvasWidth
+ * @param {number} canvasHeight
  * @param {number} padding - Padding from edges
  * @returns {{x: number, y: number}}
  */
@@ -189,10 +189,10 @@ export function getRandomPosition(canvasWidth, canvasHeight, padding = 50) {
 
 /**
  * Calculate distance between two points
- * @param {number} x1 
- * @param {number} y1 
- * @param {number} x2 
- * @param {number} y2 
+ * @param {number} x1
+ * @param {number} y1
+ * @param {number} x2
+ * @param {number} y2
  * @returns {number}
  */
 export function distance(x1, y1, x2, y2) {
@@ -201,8 +201,8 @@ export function distance(x1, y1, x2, y2) {
 
 /**
  * Linear interpolation between two values
- * @param {number} start 
- * @param {number} end 
+ * @param {number} start
+ * @param {number} end
  * @param {number} factor - Between 0 and 1
  * @returns {number}
  */
@@ -212,9 +212,9 @@ export function lerp(start, end, factor) {
 
 /**
  * Clamp value between min and max
- * @param {number} value 
- * @param {number} min 
- * @param {number} max 
+ * @param {number} value
+ * @param {number} min
+ * @param {number} max
  * @returns {number}
  */
 export function clamp(value, min, max) {
@@ -258,16 +258,16 @@ export function hslToRgb(h, s, l) {
     h = h / 360;
     s = s / 100;
     l = l / 100;
-    
+
     const hue2rgb = (p, q, t) => {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1/6) return p + (q - p) * 6 * t;
-        if (t < 1/2) return q;
-        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        if (t < 0) {t += 1;}
+        if (t > 1) {t -= 1;}
+        if (t < 1/6) {return p + (q - p) * 6 * t;}
+        if (t < 1/2) {return q;}
+        if (t < 2/3) {return p + (q - p) * (2/3 - t) * 6;}
         return p;
     };
-    
+
     let r, g, b;
     if (s === 0) {
         r = g = b = l;
@@ -278,7 +278,7 @@ export function hslToRgb(h, s, l) {
         g = hue2rgb(p, q, h);
         b = hue2rgb(p, q, h - 1/3);
     }
-    
+
     return `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
 }
 
@@ -293,29 +293,29 @@ export class PerformanceMonitor {
         this.frameTime = 0;
         this.updateInterval = 1000; // Update every second
     }
-    
+
     update() {
         const now = performance.now();
         const deltaTime = now - this.lastTime;
-        
+
         this.frameCount++;
         this.frameTime = deltaTime;
-        
+
         if (deltaTime >= this.updateInterval) {
             this.fps = Math.round((this.frameCount * 1000) / deltaTime);
             this.frameCount = 0;
             this.lastTime = now;
         }
     }
-    
+
     getFPS() {
         return this.fps;
     }
-    
+
     getFrameTime() {
         return this.frameTime;
     }
-    
+
     isPerformanceGood() {
         return this.fps >= 45 && this.frameTime <= CONFIG.performance.maxFrameTime * 1.2;
     }
@@ -329,27 +329,27 @@ export class ObjectPool {
         this.createFn = createFn;
         this.resetFn = resetFn;
         this.pool = [];
-        
+
         // Pre-populate pool
         for (let i = 0; i < initialSize; i++) {
             this.pool.push(this.createFn());
         }
     }
-    
+
     get() {
         if (this.pool.length > 0) {
             return this.pool.pop();
         }
         return this.createFn();
     }
-    
+
     release(obj) {
         if (this.resetFn) {
             this.resetFn(obj);
         }
         this.pool.push(obj);
     }
-    
+
     clear() {
         this.pool.length = 0;
     }
@@ -357,7 +357,7 @@ export class ObjectPool {
 
 /**
  * Debounce function to limit function calls
- * @param {Function} func 
+ * @param {Function} func
  * @param {number} wait - Delay in milliseconds
  * @returns {Function}
  */
@@ -383,17 +383,17 @@ export function isTouchDevice() {
 
 /**
  * Get canvas coordinates from mouse/touch event
- * @param {Event} event 
- * @param {HTMLCanvasElement} canvas 
+ * @param {Event} event
+ * @param {HTMLCanvasElement} canvas
  * @returns {{x: number, y: number}}
  */
 export function getCanvasCoordinates(event, canvas) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    
+
     let clientX, clientY;
-    
+
     if (event.touches && event.touches.length > 0) {
         clientX = event.touches[0].clientX;
         clientY = event.touches[0].clientY;
@@ -401,7 +401,7 @@ export function getCanvasCoordinates(event, canvas) {
         clientX = event.clientX;
         clientY = event.clientY;
     }
-    
+
     return {
         x: (clientX - rect.left) * scaleX,
         y: (clientY - rect.top) * scaleY
@@ -410,7 +410,7 @@ export function getCanvasCoordinates(event, canvas) {
 
 /**
  * Announce to screen readers for accessibility
- * @param {string} message 
+ * @param {string} message
  */
 export function announceToScreenReader(message) {
     const screenReader = document.getElementById('screenReader');
@@ -425,8 +425,8 @@ export function announceToScreenReader(message) {
 
 /**
  * Log debug information (only in development)
- * @param {string} message 
- * @param {...any} args 
+ * @param {string} message
+ * @param {...any} args
  */
 export function debugLog(message, ...args) {
     if (import.meta.env.DEV) {

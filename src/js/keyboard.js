@@ -11,21 +11,21 @@ import { debugLog, announceToScreenReader } from './utils.js';
 const BLOCKED_KEYS = new Set([
     // Modifier keys that could cause issues
     'Alt', 'AltLeft', 'AltRight',
-    'Control', 'ControlLeft', 'ControlRight', 
+    'Control', 'ControlLeft', 'ControlRight',
     'Meta', 'MetaLeft', 'MetaRight', // Windows/Cmd key
     'OS', 'OSLeft', 'OSRight',
-    
+
     // Function keys that could disrupt the browser
-    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6',
     'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
-    
+
     // Navigation keys that might cause issues
     'ContextMenu',
     'PrintScreen',
     'ScrollLock',
     'Pause',
     'Insert',
-    
+
     // Browser-specific shortcuts we want to avoid
     'BrowserBack',
     'BrowserForward',
@@ -78,44 +78,44 @@ export class KeyboardHandler {
         this.onParentControl = null; // Callback for parent controls
         this.keyPressCount = 0;
         this.lastKeyTime = 0;
-        
+
         this.init();
     }
-    
+
     init() {
         // Bind keyboard events
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
-        
+
         // Prevent context menu on right-click during game
         document.addEventListener('contextmenu', (e) => {
             if (this.gameActive) {
                 e.preventDefault();
             }
         });
-        
+
         debugLog('Keyboard handler initialized');
     }
-    
+
     /**
      * Handle keydown events
-     * @param {KeyboardEvent} event 
+     * @param {KeyboardEvent} event
      */
     handleKeyDown(event) {
         const now = performance.now();
-        
+
         debugLog(`Key pressed: ${event.code} (${event.key})`);
-        
+
         // Check for parent controls first
         if (this.checkParentControls(event)) {
             return;
         }
-        
+
         // If game is not active, don't process game keys
         if (!this.gameActive) {
             return;
         }
-        
+
         // Block dangerous keys
         if (this.shouldBlockKey(event)) {
             event.preventDefault();
@@ -123,50 +123,50 @@ export class KeyboardHandler {
             debugLog(`Blocked dangerous key: ${event.code}`);
             return;
         }
-        
+
         // Prevent default behavior for all keys during gameplay
         event.preventDefault();
         event.stopPropagation();
-        
+
         // Check for rapid key pressing (prevent spam) - reduced for better responsiveness
         if (now - this.lastKeyTime < 20) { // 20ms cooldown for better responsiveness
             return;
         }
-        
+
         this.lastKeyTime = now;
         this.keyPressCount++;
-        
+
         // Check for debug toggle (D key)
         if (event.code === 'KeyD') {
             window.debugMode = !window.debugMode;
             console.log('Debug mode:', window.debugMode ? 'ON' : 'OFF');
         }
-        
+
         // Determine key type and effect
         const keyInfo = this.analyzeKey(event);
-        
+
         // Call the game callback with key information
         if (this.onKeyPress && typeof this.onKeyPress === 'function') {
             this.onKeyPress(keyInfo);
         }
-        
+
         // Announce to screen reader occasionally for accessibility
         if (this.keyPressCount % 10 === 0) {
             announceToScreenReader(`${this.keyPressCount} keys pressed. Having fun!`);
         }
     }
-    
+
     /**
      * Handle keyup events
-     * @param {KeyboardEvent} event 
+     * @param {KeyboardEvent} event
      */
     handleKeyUp(event) {
         // Currently not used, but available for future features
     }
-    
+
     /**
      * Check if key should be blocked
-     * @param {KeyboardEvent} event 
+     * @param {KeyboardEvent} event
      * @returns {boolean}
      */
     shouldBlockKey(event) {
@@ -174,19 +174,19 @@ export class KeyboardHandler {
         if (BLOCKED_KEYS.has(event.code) || BLOCKED_KEYS.has(event.key)) {
             return true;
         }
-        
+
         // Block combinations with modifier keys (except parent controls)
-        if ((event.ctrlKey || event.altKey || event.metaKey) && 
+        if ((event.ctrlKey || event.altKey || event.metaKey) &&
             !this.isParentControl(event)) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Check for parent control key combinations
-     * @param {KeyboardEvent} event 
+     * @param {KeyboardEvent} event
      * @returns {boolean} True if parent control was triggered
      */
     checkParentControls(event) {
@@ -194,23 +194,23 @@ export class KeyboardHandler {
             if (this.matchesKeyCombo(event, combo)) {
                 event.preventDefault();
                 event.stopPropagation();
-                
+
                 debugLog(`Parent control triggered: ${action}`);
-                
+
                 if (this.onParentControl && typeof this.onParentControl === 'function') {
                     this.onParentControl(action, event);
                 }
-                
+
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Check if event matches parent control combination
-     * @param {KeyboardEvent} event 
+     * @param {KeyboardEvent} event
      * @returns {boolean}
      */
     isParentControl(event) {
@@ -221,11 +221,11 @@ export class KeyboardHandler {
         }
         return false;
     }
-    
+
     /**
      * Check if event matches a key combination
-     * @param {KeyboardEvent} event 
-     * @param {Object} combo 
+     * @param {KeyboardEvent} event
+     * @param {Object} combo
      * @returns {boolean}
      */
     matchesKeyCombo(event, combo) {
@@ -235,10 +235,10 @@ export class KeyboardHandler {
                (!combo.meta || event.metaKey) &&
                (event.code === combo.key || event.key === combo.key);
     }
-    
+
     /**
      * Analyze key press to determine effect type
-     * @param {KeyboardEvent} event 
+     * @param {KeyboardEvent} event
      * @returns {Object} Key information object
      */
     analyzeKey(event) {
@@ -249,7 +249,7 @@ export class KeyboardHandler {
             effect: 'normal',
             timestamp: performance.now()
         };
-        
+
         // Determine key type and assign sounds
         if (event.code.startsWith('Key')) {
             keyInfo.type = 'letter';
@@ -284,7 +284,7 @@ export class KeyboardHandler {
             keyInfo.type = 'special';
             keyInfo.soundType = this.getRandomSound(KEY_SOUND_MAP.modifiers);
         }
-        
+
         // Add special effects based on patterns
         if (keyInfo.type === 'letter' && this.isVowel(keyInfo.character)) {
             keyInfo.effect = 'sparkle';
@@ -292,13 +292,13 @@ export class KeyboardHandler {
         } else if (keyInfo.type === 'number') {
             keyInfo.effect = 'star';
         }
-        
+
         // Check for rapid typing (rainbow effect)
         if (this.keyPressCount > 0 && (performance.now() - this.lastKeyTime) < 200) {
             keyInfo.effect = 'rainbow';
             keyInfo.soundType = 'chime';
         }
-        
+
         // Special sound for consonants vs vowels
         if (keyInfo.type === 'letter') {
             if (this.isVowel(keyInfo.character)) {
@@ -309,45 +309,45 @@ export class KeyboardHandler {
                 keyInfo.soundType = this.getRandomSound(['note', 'toy', 'bubble']);
             }
         }
-        
+
         return keyInfo;
     }
-    
+
     /**
      * Check if character is a vowel
-     * @param {string} char 
+     * @param {string} char
      * @returns {boolean}
      */
     isVowel(char) {
         return 'aeiou'.includes(char.toLowerCase());
     }
-    
+
     /**
      * Check if character is punctuation
-     * @param {string} char 
+     * @param {string} char
      * @returns {boolean}
      */
     isPunctuation(char) {
         return /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/.test(char);
     }
-    
+
     /**
      * Get random sound from array
-     * @param {string[]} sounds 
+     * @param {string[]} sounds
      * @returns {string}
      */
     getRandomSound(sounds) {
         return sounds[Math.floor(Math.random() * sounds.length)];
     }
-    
+
     /**
      * Set game active state
-     * @param {boolean} active 
+     * @param {boolean} active
      */
     setGameActive(active) {
         this.gameActive = active;
         debugLog(`Game active state: ${active}`);
-        
+
         if (active) {
             document.body.style.overflow = 'hidden'; // Prevent scrolling during game
             announceToScreenReader('Game started! Press any key to create shapes and sounds!');
@@ -356,23 +356,23 @@ export class KeyboardHandler {
             this.keyPressCount = 0;
         }
     }
-    
+
     /**
      * Set callback for key presses
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     setOnKeyPress(callback) {
         this.onKeyPress = callback;
     }
-    
+
     /**
      * Set callback for parent controls
-     * @param {Function} callback 
+     * @param {Function} callback
      */
     setOnParentControl(callback) {
         this.onParentControl = callback;
     }
-    
+
     /**
      * Get statistics about key presses
      * @returns {Object}
@@ -384,7 +384,7 @@ export class KeyboardHandler {
             gameActive: this.gameActive
         };
     }
-    
+
     /**
      * Reset key press statistics
      */
@@ -393,7 +393,7 @@ export class KeyboardHandler {
         this.lastKeyTime = 0;
         debugLog('Key press statistics reset');
     }
-    
+
     /**
      * Clean up event listeners
      */
@@ -401,11 +401,11 @@ export class KeyboardHandler {
         document.removeEventListener('keydown', this.handleKeyDown.bind(this));
         document.removeEventListener('keyup', this.handleKeyUp.bind(this));
         document.removeEventListener('contextmenu', this.handleContextMenu);
-        
+
         this.gameActive = false;
         this.onKeyPress = null;
         this.onParentControl = null;
-        
+
         debugLog('Keyboard handler destroyed');
     }
 }

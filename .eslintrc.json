@@ -1,0 +1,38 @@
+{
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": false
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "globals": {
+    "console": "readonly",
+    "setTimeout": "readonly",
+    "clearTimeout": "readonly",
+    "setInterval": "readonly",
+    "clearInterval": "readonly",
+    "requestAnimationFrame": "readonly",
+    "cancelAnimationFrame": "readonly",
+    "performance": "readonly",
+    "Date": "readonly",
+    "Math": "readonly",
+    "AudioContext": "readonly",
+    "webkitAudioContext": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-console": "off",
+    "no-debugger": "warn",
+    "no-constant-condition": "warn",
+    "no-case-declarations": "off",
+    "prefer-const": "warn",
+    "no-var": "error",
+    "semi": ["error", "always"]
+  }
+}
