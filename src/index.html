@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Baby Keyboard Smashing Game - A fun, safe keyboard and mouse game for babies and toddlers">
+    <meta name="keywords" content="baby game, toddler game, keyboard smashing, safe children game">
+    <meta name="author" content="Baby Game Developer">
+    
+    <!-- Prevent zoom and ensure fullscreen experience -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>Baby Keyboard Smashing Game 🎮👶</title>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Preload critical resources for better performance -->
+    <link rel="preload" href="js/main.js" as="script">
+    <link rel="preload" href="js/keyboard.js" as="script">
+    <link rel="preload" href="js/shapes.js" as="script">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <h1>🎮 Baby Keyboard Game 👶</h1>
+        <p>Loading fun for your little one...</p>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer" class="game-container hidden">
+        <!-- Main Canvas for Graphics -->
+        <canvas id="gameCanvas" class="game-canvas"></canvas>
+        
+        <!-- Parent Controls Overlay (Initially Hidden) -->
+        <div id="parentControls" class="parent-controls hidden">
+            <div class="controls-panel">
+                <h2>👨‍👩‍👧‍👦 Parent Controls</h2>
+                <div class="controls-grid">
+                    <button id="toggleSound" class="control-btn">
+                        <span class="btn-icon">🔊</span>
+                        <span class="btn-text">Toggle Sound</span>
+                        <span class="btn-shortcut">Ctrl+Shift+M</span>
+                    </button>
+                    <button id="clearScreen" class="control-btn">
+                        <span class="btn-icon">🧹</span>
+                        <span class="btn-text">Clear Screen</span>
+                        <span class="btn-shortcut">Ctrl+Shift+C</span>
+                    </button>
+                    <button id="exitGame" class="control-btn exit-btn">
+                        <span class="btn-icon">🚪</span>
+                        <span class="btn-text">Exit Game</span>
+                        <span class="btn-shortcut">Ctrl+Shift+Esc</span>
+                    </button>
+                </div>
+                <p class="controls-hint">Press Ctrl+Shift+P again to hide controls</p>
+            </div>
+        </div>
+
+        <!-- Sound Status Indicator -->
+        <div id="soundStatus" class="sound-status">
+            <span id="soundIcon">🔊</span>
+        </div>
+
+        <!-- Fullscreen Button for Mobile -->
+        <button id="fullscreenBtn" class="fullscreen-btn" title="Enter Fullscreen">
+            📱
+        </button>
+    </div>
+
+    <!-- Start Screen Instructions -->
+    <div id="startScreen" class="start-screen hidden">
+        <div class="start-content">
+            <h1>🎮 Baby Keyboard Game 👶</h1>
+            <div class="game-preview">
+                <div class="preview-shapes">
+                    <div class="preview-shape circle"></div>
+                    <div class="preview-shape square"></div>
+                    <div class="preview-shape triangle"></div>
+                </div>
+            </div>
+            <div class="instructions">
+                <h2>How to Play:</h2>
+                <div class="instruction-item">
+                    <span class="instruction-icon">⌨️</span>
+                    <span>Press any key to create colorful shapes!</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🖱️</span>
+                    <span>Move mouse to create beautiful particles!</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🔊</span>
+                    <span>Enjoy pleasant sounds with every action!</span>
+                </div>
+            </div>
+            <button id="startGameBtn" class="start-btn">
+                Start Playing! 🎉
+            </button>
+            <div class="start-options">
+                <p class="start-hint">Or press <kbd>Space</kbd> to start instantly! ⚡</p>
+            </div>
+            <div class="parent-info">
+                <p><strong>For Parents:</strong> Use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> for controls</p>
+                <p>Safe for babies - no harmful shortcuts active during play</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/keyboard.js"></script>
+    <script type="module" src="js/shapes.js"></script>
+    <script type="module" src="js/particles.js"></script>
+    <script type="module" src="js/sounds.js"></script>
+    <script type="module" src="js/main.js"></script>
+
+    <!-- Accessibility -->
+    <div class="sr-only" id="screenReader" aria-live="polite" aria-atomic="true">
+        <!-- Screen reader announcements will be placed here -->
+    </div>
+</body>
+</html>

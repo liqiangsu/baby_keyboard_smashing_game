@@ -1,0 +1,438 @@
+/**
+ * Animation Styles for Baby Keyboard Smashing Game
+ * Smooth, baby-friendly animations and effects
+ */
+
+/* Keyframe Animations */
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Bounce animation for preview shapes */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Slide in from top animation */
+@keyframes slideInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide in from bottom animation */
+@keyframes slideInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Fade out animation */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Scale in animation */
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Scale out animation */
+@keyframes scaleOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Pulse animation for buttons */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Shake animation for errors or emphasis */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* Glow animation for special elements */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* Rainbow color animation */
+@keyframes rainbow {
+  0% { color: #FF6B6B; }
+  16.66% { color: #4ECDC4; }
+  33.33% { color: #45B7D1; }
+  50% { color: #96CEB4; }
+  66.66% { color: #FFEAA7; }
+  83.33% { color: #DDA0DD; }
+  100% { color: #FF6B6B; }
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Wiggle animation for fun effects */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+/* Heartbeat animation */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Sparkle animation */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Button hover effects */
+.start-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.start-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.start-btn:hover::before {
+  left: 100%;
+}
+
+/* Control button animations */
+.control-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.control-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.control-btn:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* Loading animation enhancements */
+.loading-screen h1 {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.loading-screen p {
+  animation: fadeIn 1s ease-out 0.5s both;
+}
+
+/* Preview shapes enhanced animations */
+.preview-shape.circle {
+  animation: bounce 2s ease-in-out infinite,
+             glow 3s ease-in-out infinite 1s;
+}
+
+.preview-shape.square {
+  animation: bounce 2s ease-in-out infinite 0.3s,
+             wiggle 4s ease-in-out infinite 2s;
+}
+
+.preview-shape.triangle {
+  animation: bounce 2s ease-in-out infinite 0.6s,
+             float 3s ease-in-out infinite 1.5s;
+}
+
+/* Sound status animations */
+.sound-status {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.sound-status.muted #soundIcon {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Fullscreen button animation */
+.fullscreen-btn {
+  animation: scaleIn 0.3s ease-out 1s both;
+}
+
+/* Parent controls entrance */
+.parent-controls:not(.hidden) .controls-panel {
+  animation: slideInDown 0.3s ease-out;
+}
+
+/* Interactive hover states */
+.instruction-item {
+  transition: all var(--transition-fast);
+}
+
+.instruction-item:hover {
+  transform: translateX(5px);
+}
+
+.instruction-icon {
+  transition: all var(--transition-fast);
+}
+
+.instruction-item:hover .instruction-icon {
+  animation: pulse 0.5s ease-in-out;
+}
+
+/* Game canvas entrance animation */
+.game-container:not(.hidden) .game-canvas {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Start screen exit animation */
+.start-screen.hidden {
+  animation: fadeOut 0.5s ease-out;
+}
+
+/* Loading screen exit animation */
+.loading-screen.hidden {
+  animation: scaleOut 0.5s ease-out;
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Keep essential animations but make them instant */
+  .loading-spinner {
+    animation: none;
+    border-top-color: var(--primary-yellow);
+  }
+  
+  .preview-shape {
+    animation: none;
+  }
+  
+  .start-btn::before,
+  .control-btn::after {
+    display: none;
+  }
+}
+
+/* High performance mode for lower-end devices */
+@media (max-width: 480px) and (max-height: 640px) {
+  /* Simplify animations on small screens */
+  .preview-shape {
+    animation-duration: 3s; /* Slower to reduce CPU usage */
+  }
+  
+  .loading-spinner {
+    animation-duration: 1.5s; /* Slower spinner */
+  }
+  
+  /* Remove complex hover effects on mobile */
+  .start-btn::before,
+  .control-btn::after {
+    display: none;
+  }
+}
+
+/* Custom animation classes for JavaScript control */
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut var(--transition-normal) ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-normal) ease-out;
+}
+
+.animate-scale-out {
+  animation: scaleOut var(--transition-normal) ease-out;
+}
+
+.animate-slide-up {
+  animation: slideInUp var(--transition-normal) ease-out;
+}
+
+.animate-slide-down {
+  animation: slideInDown var(--transition-normal) ease-out;
+}
+
+.animate-bounce {
+  animation: bounce 0.6s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-pulse {
+  animation: pulse 0.5s ease-in-out;
+}
+
+.animate-glow {
+  animation: glow 1s ease-in-out;
+}
+
+.animate-rainbow {
+  animation: rainbow 2s linear infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 0.8s ease-in-out;
+}
+
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Gentle pulse animation for subtle emphasis */
+@keyframes gentle-pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.animate-gentle-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}

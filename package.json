@@ -1,0 +1,40 @@
+{
+  "name": "baby-keyboard-smashing-game",
+  "version": "1.0.0",
+  "description": "A fun, safe, and engaging keyboard smashing game designed for babies and toddlers (ages 6 months to 3 years)",
+  "main": "src/index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview --port 3000"
+  },
+  "keywords": [
+    "baby",
+    "toddler",
+    "keyboard",
+    "game",
+    "educational",
+    "children",
+    "interactive",
+    "safe"
+  ],
+  "author": "Baby Game Developer",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "Chrome >= 80",
+    "Firefox >= 75",
+    "Safari >= 13",
+    "Edge >= 80"
+  ]
+}
