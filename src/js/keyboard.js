@@ -50,10 +50,25 @@ const PARENT_CONTROLS = {
  * Special effects for certain key combinations or keys
  */
 const SPECIAL_EFFECTS = {
-    spacebar: { key: 'Space', effect: 'explosion' },
-    enter: { key: 'Enter', effect: 'fireworks' },
-    allLetters: { effect: 'rainbow' },
-    numbers: { effect: 'sparkle' }
+    spacebar: { key: 'Space', effect: 'explosion', sound: 'explosion' },
+    enter: { key: 'Enter', effect: 'fireworks', sound: 'fireworks' },
+    allLetters: { effect: 'rainbow', sound: 'chime' },
+    numbers: { effect: 'sparkle', sound: 'sparkle' },
+    arrows: { effect: 'bounce', sound: 'boing' },
+    punctuation: { effect: 'bubble', sound: 'bubble' },
+    tab: { key: 'Tab', effect: 'whistle', sound: 'whistle' }
+};
+
+/**
+ * Sound type mapping for different key categories
+ */
+const KEY_SOUND_MAP = {
+    letters: ['note', 'chime', 'bell'],
+    numbers: ['sparkle', 'chime', 'whistle'],
+    punctuation: ['bubble', 'toy', 'bell'],
+    arrows: ['boing', 'toy'],
+    function: ['laugh', 'toy'],
+    modifiers: ['whistle', 'chime']
 };
 
 export class KeyboardHandler {
@@ -235,29 +250,45 @@ export class KeyboardHandler {
             timestamp: performance.now()
         };
         
-        // Determine key type
+        // Determine key type and assign sounds
         if (event.code.startsWith('Key')) {
             keyInfo.type = 'letter';
             keyInfo.character = event.key.toLowerCase();
+            keyInfo.soundType = this.getRandomSound(KEY_SOUND_MAP.letters);
         } else if (event.code.startsWith('Digit')) {
             keyInfo.type = 'number';
             keyInfo.character = event.key;
+            keyInfo.soundType = this.getRandomSound(KEY_SOUND_MAP.numbers);
         } else if (event.code === 'Space') {
             keyInfo.type = 'space';
             keyInfo.effect = 'explosion';
+            keyInfo.soundType = 'explosion';
         } else if (event.code === 'Enter') {
             keyInfo.type = 'enter';
             keyInfo.effect = 'fireworks';
+            keyInfo.soundType = 'fireworks';
+        } else if (event.code === 'Tab') {
+            keyInfo.type = 'tab';
+            keyInfo.effect = 'whistle';
+            keyInfo.soundType = 'whistle';
         } else if (event.code.startsWith('Arrow')) {
             keyInfo.type = 'arrow';
             keyInfo.direction = event.code.replace('Arrow', '').toLowerCase();
+            keyInfo.effect = 'bounce';
+            keyInfo.soundType = 'boing';
+        } else if (this.isPunctuation(event.key)) {
+            keyInfo.type = 'punctuation';
+            keyInfo.effect = 'bubble';
+            keyInfo.soundType = this.getRandomSound(KEY_SOUND_MAP.punctuation);
         } else {
             keyInfo.type = 'special';
+            keyInfo.soundType = this.getRandomSound(KEY_SOUND_MAP.modifiers);
         }
         
         // Add special effects based on patterns
         if (keyInfo.type === 'letter' && this.isVowel(keyInfo.character)) {
             keyInfo.effect = 'sparkle';
+            keyInfo.soundType = 'sparkle';
         } else if (keyInfo.type === 'number') {
             keyInfo.effect = 'star';
         }
@@ -265,6 +296,18 @@ export class KeyboardHandler {
         // Check for rapid typing (rainbow effect)
         if (this.keyPressCount > 0 && (performance.now() - this.lastKeyTime) < 200) {
             keyInfo.effect = 'rainbow';
+            keyInfo.soundType = 'chime';
+        }
+        
+        // Special sound for consonants vs vowels
+        if (keyInfo.type === 'letter') {
+            if (this.isVowel(keyInfo.character)) {
+                // Vowels get more melodic sounds
+                keyInfo.soundType = this.getRandomSound(['chime', 'bell', 'whistle']);
+            } else {
+                // Consonants get more percussive sounds
+                keyInfo.soundType = this.getRandomSound(['note', 'toy', 'bubble']);
+            }
         }
         
         return keyInfo;
@@ -277,6 +320,24 @@ export class KeyboardHandler {
      */
     isVowel(char) {
         return 'aeiou'.includes(char.toLowerCase());
+    }
+    
+    /**
+     * Check if character is punctuation
+     * @param {string} char 
+     * @returns {boolean}
+     */
+    isPunctuation(char) {
+        return /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/.test(char);
+    }
+    
+    /**
+     * Get random sound from array
+     * @param {string[]} sounds 
+     * @returns {string}
+     */
+    getRandomSound(sounds) {
+        return sounds[Math.floor(Math.random() * sounds.length)];
     }
     
     /**

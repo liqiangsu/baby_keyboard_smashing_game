@@ -7,12 +7,41 @@
     <meta name="keywords" content="baby game, toddler game, keyboard smashing, safe children game">
     <meta name="author" content="Baby Game Developer">
     
-    <!-- Prevent zoom and ensure fullscreen experience -->
+    <!-- Mobile optimization -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+    <meta name="apple-mobile-web-app-title" content="Baby Keyboard Game">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <!-- Prevent text size adjust on orientation change -->
+    <meta name="format-detection" content="telephone=no">
+    <style>
+        /* Prevent iOS Safari bounce and improve mobile performance */
+        html, body {
+            position: fixed;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+            -webkit-text-size-adjust: none;
+        }
+        /* Improve touch responsiveness */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
     
     <title>Baby Keyboard Smashing Game 🎮👶</title>
+    
+    <!-- PWA Manifest and Icons -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon-180.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icon-16.png">
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/styles.css">
@@ -67,9 +96,22 @@
         </div>
 
         <!-- Fullscreen Button for Mobile -->
-        <button id="fullscreenBtn" class="fullscreen-btn" title="Enter Fullscreen">
+        <button id="fullscreenBtn" class="fullscreen-btn" title="Enter Fullscreen" aria-label="Enter fullscreen mode">
             📱
         </button>
+        
+        <!-- Accessibility Controls -->
+        <div id="accessibilityControls" class="accessibility-controls hidden">
+            <button id="toggleHighContrast" class="accessibility-btn" title="Toggle High Contrast" aria-label="Toggle high contrast mode">
+                🎨
+            </button>
+            <button id="toggleReducedMotion" class="accessibility-btn" title="Toggle Reduced Motion" aria-label="Toggle reduced motion">
+                ⏸️
+            </button>
+            <button id="toggleAccessibilityPanel" class="accessibility-btn" title="Show/Hide Accessibility Panel" aria-label="Toggle accessibility panel">
+                ♿
+            </button>
+        </div>
     </div>
 
     <!-- Start Screen Instructions -->

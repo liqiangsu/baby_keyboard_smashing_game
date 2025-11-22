@@ -2,6 +2,20 @@
 
 A fun, safe, and engaging keyboard smashing game designed for babies and toddlers (ages 6 months to 3 years). Turn random keyboard mashing into an entertaining and educational experience with colorful shapes, delightful sounds, and beautiful particle effects!
 
+## 🌟 Play Now
+
+**🚀 Live Demo:** `https://YOUR_USERNAME.github.io/baby_keyboard_smaing_game/`
+
+> Replace YOUR_USERNAME with your GitHub username after deployment
+
+## 🎯 Quick Start
+
+1. **Press Space** to start the game instantly
+2. **Smash any keys** to create colorful shapes
+3. **Move mouse** for beautiful particle trails  
+4. **Click anywhere** for burst effects
+5. **Parents:** Use `Ctrl+Shift+P` for controls
+
 ## Features ✨
 
 - **Visual Feedback**: Colorful geometric shapes appear with smooth animations

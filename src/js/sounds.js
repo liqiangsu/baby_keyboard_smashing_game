@@ -20,7 +20,18 @@ const MUSICAL_NOTES = {
     D5: 587.33,
     E5: 659.25,
     G5: 783.99,
-    A5: 880.00
+    A5: 880.00,
+    C6: 1046.50,
+    D6: 1174.66,
+    E6: 1318.51
+};
+
+// Additional harmonic intervals for richer sounds
+const HARMONICS = {
+    octave: 2.0,
+    fifth: 1.5,
+    fourth: 1.33,
+    third: 1.25
 };
 
 const NOTE_NAMES = Object.keys(MUSICAL_NOTES);
@@ -29,13 +40,17 @@ const NOTE_NAMES = Object.keys(MUSICAL_NOTES);
  * Sound types and their properties
  */
 const SOUND_TYPES = {
-    note: { duration: 0.6, volume: 0.7 },
-    chime: { duration: 1.2, volume: 0.5 },
-    bell: { duration: 0.8, volume: 0.6 },
-    toy: { duration: 0.4, volume: 0.8 },
-    sparkle: { duration: 0.3, volume: 0.4 },
-    explosion: { duration: 1.0, volume: 0.9 },
-    fireworks: { duration: 1.5, volume: 0.6 }
+    note: { duration: 0.6, volume: 0.7, waveType: 'sine' },
+    chime: { duration: 1.2, volume: 0.5, waveType: 'triangle' },
+    bell: { duration: 0.8, volume: 0.6, waveType: 'sine' },
+    toy: { duration: 0.4, volume: 0.8, waveType: 'square' },
+    sparkle: { duration: 0.3, volume: 0.4, waveType: 'triangle' },
+    explosion: { duration: 1.0, volume: 0.9, waveType: 'sawtooth' },
+    fireworks: { duration: 1.5, volume: 0.6, waveType: 'sine' },
+    bubble: { duration: 0.5, volume: 0.6, waveType: 'sine' },
+    boing: { duration: 0.7, volume: 0.8, waveType: 'sawtooth' },
+    whistle: { duration: 0.4, volume: 0.5, waveType: 'sine' },
+    laugh: { duration: 1.0, volume: 0.7, waveType: 'triangle' }
 };
 
 export class SoundManager {
@@ -120,7 +135,7 @@ export class SoundManager {
             document.addEventListener(event, enableAudio, { once: true });
         });
     }
-    
+
     /**
      * Play sound based on key information
      * @param {Object} keyInfo - Information about the pressed key
@@ -173,7 +188,7 @@ export class SoundManager {
         
         this.playSound(soundType, note);
     }
-    
+
     /**
      * Play a specific sound
      * @param {string} type - Sound type
@@ -195,131 +210,283 @@ export class SoundManager {
             this.playFallbackSound(type, frequency, options);
         }
     }
-    
+
     playWebAudioSound(type, frequency, options) {
-        const soundConfig = SOUND_TYPES[type] || SOUND_TYPES.note;
-        const duration = options.duration || soundConfig.duration;
-        const volume = (options.volume || soundConfig.volume) * this.volume;
+        const soundConfig = { ...SOUND_TYPES[type] || SOUND_TYPES.note, ...options };
+        const currentTime = this.audioContext.currentTime;
+        const soundId = Date.now() + Math.random();
+        
+        this.activeSounds.add(soundId);
         
         try {
-            const now = this.audioContext.currentTime;
-            const soundId = `${type}_${now}_${Math.random()}`;
+            switch (type) {
+                case 'bubble':
+                    this.createBubbleSound(frequency, soundConfig, currentTime);
+                    break;
+                case 'boing':
+                    this.createBoingSound(frequency, soundConfig, currentTime);
+                    break;
+                case 'whistle':
+                    this.createWhistleSound(frequency, soundConfig, currentTime);
+                    break;
+                case 'laugh':
+                    this.createLaughSound(frequency, soundConfig, currentTime);
+                    break;
+                case 'chime':
+                    this.createChimeSound(frequency, soundConfig, currentTime);
+                    break;
+                case 'explosion':
+                    this.createExplosionSound(frequency, soundConfig, currentTime);
+                    break;
+                case 'fireworks':
+                    this.createFireworksSound(frequency, soundConfig, currentTime);
+                    break;
+                default:
+                    this.createBasicSound(frequency, soundConfig, currentTime);
+            }
+        } catch (error) {
+            debugLog('Error playing Web Audio sound:', error);
+        }
+        
+        // Clean up sound ID after duration
+        setTimeout(() => {
+            this.activeSounds.delete(soundId);
+        }, soundConfig.duration * 1000 + 100);
+    }
+
+    /**
+     * Enhanced sound synthesis methods for baby-friendly audio
+     */
+    createBasicSound(frequency, config, startTime) {
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        oscillator.type = config.waveType || 'sine';
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        
+        // Smooth envelope
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + config.duration);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + config.duration);
+    }
+    
+    createBubbleSound(frequency, config, startTime) {
+        // Create a bubble-like sound with frequency modulation
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        const lfo = this.audioContext.createOscillator(); // Low frequency oscillator
+        const lfoGain = this.audioContext.createGain();
+        
+        // Setup LFO for frequency modulation
+        lfo.frequency.setValueAtTime(8, startTime); // 8 Hz modulation
+        lfo.connect(lfoGain);
+        lfoGain.gain.setValueAtTime(frequency * 0.1, startTime); // 10% modulation depth
+        lfoGain.connect(oscillator.frequency);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        
+        // Bubble envelope - quick attack, gentle decay
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume, startTime + 0.005);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + config.duration);
+        
+        lfo.start(startTime);
+        oscillator.start(startTime);
+        lfo.stop(startTime + config.duration);
+        oscillator.stop(startTime + config.duration);
+    }
+    
+    createBoingSound(frequency, config, startTime) {
+        // Create a bouncy "boing" sound
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        oscillator.type = 'sawtooth';
+        
+        // Frequency bounce effect
+        oscillator.frequency.setValueAtTime(frequency * 2, startTime);
+        oscillator.frequency.exponentialRampToValueAtTime(frequency, startTime + 0.1);
+        oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.2, startTime + 0.3);
+        oscillator.frequency.exponentialRampToValueAtTime(frequency, startTime + config.duration);
+        
+        // Bouncy envelope
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume, startTime + 0.01);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume * 0.3, startTime + 0.2);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume * 0.6, startTime + 0.4);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + config.duration);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + config.duration);
+    }
+    
+    createWhistleSound(frequency, config, startTime) {
+        // Create a cheerful whistle sound
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        oscillator.type = 'sine';
+        
+        // Whistle frequency sweep
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        oscillator.frequency.linearRampToValueAtTime(frequency * 1.5, startTime + config.duration * 0.3);
+        oscillator.frequency.linearRampToValueAtTime(frequency * 1.2, startTime + config.duration);
+        
+        // Smooth whistle envelope
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume, startTime + 0.02);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume * 0.8, startTime + config.duration * 0.7);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + config.duration);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + config.duration);
+    }
+    
+    createLaughSound(frequency, config, startTime) {
+        // Create a playful laughing sound with multiple oscillators
+        const oscillators = [];
+        const gainNodes = [];
+        
+        for (let i = 0; i < 3; i++) {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
             
-            // Create oscillator for the main tone
+            osc.connect(gain);
+            gain.connect(this.masterGainNode);
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(frequency * (1 + i * 0.2), startTime);
+            
+            // Rapid frequency modulation for laugh effect
+            for (let j = 0; j < 5; j++) {
+                const time = startTime + (j * config.duration / 5);
+                const nextTime = startTime + ((j + 1) * config.duration / 5);
+                const freq = frequency * (1 + i * 0.2);
+                
+                osc.frequency.setValueAtTime(freq, time);
+                osc.frequency.linearRampToValueAtTime(freq * 1.1, time + config.duration / 10);
+                osc.frequency.linearRampToValueAtTime(freq, nextTime);
+            }
+            
+            // Staggered envelope for each oscillator
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime((config.volume * this.volume) / 3, startTime + 0.05 + i * 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + config.duration - i * 0.1);
+            
+            osc.start(startTime);
+            osc.stop(startTime + config.duration);
+            
+            oscillators.push(osc);
+            gainNodes.push(gain);
+        }
+    }
+    
+    createChimeSound(frequency, config, startTime) {
+        // Create a beautiful chime with harmonics
+        const harmonics = [1, 2, 3, 5]; // Harmonic ratios
+        
+        harmonics.forEach((harmonic, index) => {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             
-            // Configure oscillator
             oscillator.connect(gainNode);
             gainNode.connect(this.masterGainNode);
             
-            // Set waveform based on sound type
-            switch (type) {
-                case 'note':
-                    oscillator.type = 'triangle'; // Soft, pleasant tone
-                    break;
-                case 'chime':
-                    oscillator.type = 'sine'; // Pure, bell-like tone
-                    break;
-                case 'bell':
-                    oscillator.type = 'triangle';
-                    break;
-                case 'toy':
-                    oscillator.type = 'square'; // Playful, toy-like
-                    break;
-                case 'sparkle':
-                    oscillator.type = 'sine';
-                    break;
-                case 'explosion':
-                    oscillator.type = 'sawtooth'; // More energetic
-                    break;
-                case 'fireworks':
-                    oscillator.type = 'triangle';
-                    break;
-                default:
-                    oscillator.type = 'triangle';
-            }
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency * harmonic, startTime);
             
-            // Set frequency
-            oscillator.frequency.setValueAtTime(frequency, now);
+            // Each harmonic has different volume and decay
+            const harmonicVolume = (config.volume * this.volume) / (harmonic * 2);
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(harmonicVolume, startTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + config.duration * (2 - harmonic * 0.1));
             
-            // Apply special effects based on sound type
-            this.applySoundEffects(oscillator, gainNode, type, now, duration);
-            
-            // Configure envelope (attack, decay, sustain, release)
-            gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(volume, now + 0.01); // Quick attack
-            
-            if (type === 'sparkle') {
-                // Quick decay for sparkle sounds
-                gainNode.gain.exponentialRampToValueAtTime(volume * 0.1, now + duration * 0.3);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
-            } else {
-                // Standard envelope
-                gainNode.gain.linearRampToValueAtTime(volume * 0.7, now + duration * 0.3);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
-            }
-            
-            // Start and stop
-            oscillator.start(now);
-            oscillator.stop(now + duration);
-            
-            // Track active sound
-            this.activeSounds.add(soundId);
-            
-            // Clean up when finished
-            oscillator.addEventListener('ended', () => {
-                this.activeSounds.delete(soundId);
-            });
-            
-            debugLog(`Playing ${type} sound at ${Math.round(frequency)}Hz`);
-            
-        } catch (error) {
-            debugLog('Error playing Web Audio sound', error);
-        }
+            oscillator.start(startTime);
+            oscillator.stop(startTime + config.duration * 2);
+        });
     }
     
-    applySoundEffects(oscillator, gainNode, type, startTime, duration) {
-        switch (type) {
-            case 'chime':
-                // Add slight vibrato
-                const lfo = this.audioContext.createOscillator();
-                const lfoGain = this.audioContext.createGain();
-                lfo.frequency.setValueAtTime(6, startTime); // 6Hz vibrato
-                lfoGain.gain.setValueAtTime(10, startTime); // 10Hz depth
-                lfo.connect(lfoGain);
-                lfoGain.connect(oscillator.frequency);
-                lfo.start(startTime);
-                lfo.stop(startTime + duration);
-                break;
-                
-            case 'explosion':
-                // Frequency sweep down
-                oscillator.frequency.exponentialRampToValueAtTime(
-                    oscillator.frequency.value * 0.5, 
-                    startTime + duration
-                );
-                break;
-                
-            case 'fireworks':
-                // Multiple frequency sweeps
-                const freq = oscillator.frequency.value;
-                oscillator.frequency.setValueAtTime(freq, startTime);
-                oscillator.frequency.linearRampToValueAtTime(freq * 1.5, startTime + duration * 0.1);
-                oscillator.frequency.linearRampToValueAtTime(freq * 0.8, startTime + duration * 0.5);
-                oscillator.frequency.linearRampToValueAtTime(freq, startTime + duration);
-                break;
-                
-            case 'sparkle':
-                // Quick frequency modulation
-                const sparkleFreq = oscillator.frequency.value;
-                oscillator.frequency.setValueAtTime(sparkleFreq, startTime);
-                oscillator.frequency.linearRampToValueAtTime(sparkleFreq * 2, startTime + duration * 0.1);
-                oscillator.frequency.exponentialRampToValueAtTime(sparkleFreq, startTime + duration);
-                break;
-        }
+    createExplosionSound(frequency, config, startTime) {
+        // Create an exciting explosion sound with noise
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        const filter = this.audioContext.createBiquadFilter();
+        
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.1, startTime + config.duration);
+        
+        // Low-pass filter sweep for explosion effect
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(frequency * 4, startTime);
+        filter.frequency.exponentialRampToValueAtTime(frequency * 0.5, startTime + config.duration);
+        filter.Q.setValueAtTime(10, startTime);
+        
+        // Explosion envelope - sharp attack, slow decay
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(config.volume * this.volume, startTime + 0.001);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + config.duration);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + config.duration);
     }
     
+    createFireworksSound(frequency, config, startTime) {
+        // Create a spectacular fireworks sound with multiple bursts
+        for (let i = 0; i < 4; i++) {
+            const delay = i * 0.1;
+            const burstTime = startTime + delay;
+            
+            // Main burst
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            const filter = this.audioContext.createBiquadFilter();
+            
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(this.masterGainNode);
+            
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(frequency * (1 + i * 0.3), burstTime);
+            oscillator.frequency.linearRampToValueAtTime(frequency * (2 + i * 0.2), burstTime + 0.05);
+            oscillator.frequency.exponentialRampToValueAtTime(frequency * (0.5 + i * 0.1), burstTime + config.duration - delay);
+            
+            // Sparkle filter
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(frequency * 2, burstTime);
+            filter.Q.setValueAtTime(5, burstTime);
+            
+            // Firework envelope
+            const burstVolume = (config.volume * this.volume) / (i + 1);
+            gainNode.gain.setValueAtTime(0, burstTime);
+            gainNode.gain.linearRampToValueAtTime(burstVolume, burstTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, burstTime + config.duration - delay);
+            
+            oscillator.start(burstTime);
+            oscillator.stop(burstTime + config.duration - delay);
+        }
+    }
+
     playFallbackSound(type, frequency, options) {
         // Simple fallback using basic audio elements or beep
         debugLog(`Playing fallback ${type} sound`);
@@ -327,19 +494,32 @@ export class SoundManager {
         // For now, we'll skip fallback implementation
         // In a real app, you might want to use pre-recorded audio files
     }
-    
+
     getNoteForLetter(letter) {
-        // Map letters to musical notes
-        const letterIndex = letter.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0);
-        const noteIndex = letterIndex % NOTE_NAMES.length;
-        return MUSICAL_NOTES[NOTE_NAMES[noteIndex]];
+        // Map letters to musical notes with better distribution
+        // Keep all notes in a comfortable baby-friendly range
+        const letterMap = {
+            'a': MUSICAL_NOTES.C4,   'b': MUSICAL_NOTES.D4,   'c': MUSICAL_NOTES.E4,
+            'd': MUSICAL_NOTES.G4,   'e': MUSICAL_NOTES.A4,   'f': MUSICAL_NOTES.C5,
+            'g': MUSICAL_NOTES.D5,   'h': MUSICAL_NOTES.E5,   'i': MUSICAL_NOTES.G5,
+            'j': MUSICAL_NOTES.A5,   'k': MUSICAL_NOTES.C4,   'l': MUSICAL_NOTES.D4,
+            'm': MUSICAL_NOTES.E4,   'n': MUSICAL_NOTES.G4,   'o': MUSICAL_NOTES.A4,
+            'p': MUSICAL_NOTES.C5,   'q': MUSICAL_NOTES.D5,   'r': MUSICAL_NOTES.E5,
+            's': MUSICAL_NOTES.G5,   't': MUSICAL_NOTES.A5,   'u': MUSICAL_NOTES.C4,
+            'v': MUSICAL_NOTES.D4,   'w': MUSICAL_NOTES.E4,   
+            // Z and X get nice low, pleasant frequencies
+            'x': MUSICAL_NOTES.G4,   'y': MUSICAL_NOTES.A4,   'z': MUSICAL_NOTES.C4
+        };
+        
+        const lowerLetter = letter.toLowerCase();
+        return letterMap[lowerLetter] || MUSICAL_NOTES.C5;
     }
-    
+
     getRandomNote() {
         const noteName = NOTE_NAMES[Math.floor(Math.random() * NOTE_NAMES.length)];
         return MUSICAL_NOTES[noteName];
     }
-    
+
     playChord(notes, duration = 1.0) {
         // Play multiple notes simultaneously
         if (!this.isEnabled) return;
@@ -350,7 +530,7 @@ export class SoundManager {
             }, index * 50); // Slight delay for arpeggio effect
         });
     }
-    
+
     playMelody(notes, noteLength = 0.3) {
         // Play notes in sequence
         if (!this.isEnabled) return;
@@ -361,7 +541,7 @@ export class SoundManager {
             }, index * noteLength * 1000);
         });
     }
-    
+
     setVolume(volume) {
         this.volume = Math.max(0, Math.min(1, volume));
         
@@ -374,26 +554,26 @@ export class SoundManager {
         
         debugLog(`Volume set to ${Math.round(this.volume * 100)}%`);
     }
-    
+
     toggleMute() {
         this.isEnabled = !this.isEnabled;
         debugLog(`Sound ${this.isEnabled ? 'enabled' : 'disabled'}`);
         return this.isEnabled;
     }
-    
+
     setEnabled(enabled) {
         this.isEnabled = enabled;
         debugLog(`Sound ${this.isEnabled ? 'enabled' : 'disabled'}`);
     }
-    
+
     getVolume() {
         return this.volume;
     }
-    
+
     isAudioEnabled() {
         return this.isEnabled;
     }
-    
+
     getStats() {
         return {
             enabled: this.isEnabled,
@@ -403,7 +583,7 @@ export class SoundManager {
             audioContextState: this.audioContext ? this.audioContext.state : 'not available'
         };
     }
-    
+
     // Special sound effects for different occasions
     playWelcomeSound() {
         const welcomeNotes = [
@@ -414,7 +594,7 @@ export class SoundManager {
         ];
         this.playMelody(welcomeNotes, 0.4);
     }
-    
+
     playSuccessSound() {
         const successNotes = [
             MUSICAL_NOTES.C5,
@@ -423,7 +603,7 @@ export class SoundManager {
         ];
         this.playChord(successNotes, 1.2);
     }
-    
+
     destroy() {
         // Clean up resources
         if (this.audioContext && this.audioContext.state !== 'closed') {

@@ -57,6 +57,13 @@ class BabyKeyboardGame {
         // Debug mode toggle (press D key when game is running)
         window.debugMode = false;
         
+        // Accessibility settings
+        this.accessibilitySettings = {
+            highContrast: false,
+            reducedMotion: false,
+            soundEnabled: true
+        };
+        
         this.init();
     }
     
@@ -141,13 +148,22 @@ class BabyKeyboardGame {
     setupEventListeners() {
         // Window events
         window.addEventListener('resize', debounce(this.handleResize.bind(this), 250));
+        window.addEventListener('orientationchange', debounce(this.handleOrientationChange.bind(this), 500));
         window.addEventListener('beforeunload', this.handleBeforeUnload.bind(this));
         
         // Visibility API for pause/resume
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
         
+        // Mobile-specific events
+        if (isTouchDevice()) {
+            // Prevent iOS Safari bounce scrolling
+            document.addEventListener('touchmove', this.preventBounceScroll.bind(this), { passive: false });
+            // Handle iOS viewport changes
+            window.addEventListener('resize', debounce(this.handleMobileResize.bind(this), 100));
+        }
+        
         // Global keyboard listener for start screen
-        document.addEventListener('keydown', this.handleStartScreenKeydown.bind(this));
+        document.addEventListener('keydown', this.handleGlobalKeydown.bind(this));
         
         // Start button
         const startBtn = document.getElementById('startGameBtn');
@@ -162,6 +178,9 @@ class BabyKeyboardGame {
         if (this.fullscreenBtn) {
             this.fullscreenBtn.addEventListener('click', this.toggleFullscreen.bind(this));
         }
+        
+        // Accessibility controls
+        this.setupAccessibilityControls();
         
         // Touch device considerations
         if (isTouchDevice()) {
@@ -189,8 +208,8 @@ class BabyKeyboardGame {
         }
     }
     
-    handleStartScreenKeydown(event) {
-        // Only handle space key on start screen
+    handleGlobalKeydown(event) {
+        // Handle space key on start screen
         if (event.code === 'Space' && this.startScreen && !this.startScreen.classList.contains('hidden') && !this.isRunning) {
             event.preventDefault();
             event.stopPropagation();
@@ -200,6 +219,30 @@ class BabyKeyboardGame {
             
             debugLog('Game started with Space key');
             announceToScreenReader('Game started! Press keys to create shapes!');
+            return;
+        }
+        
+        // Accessibility shortcuts (work in any screen)
+        if (event.altKey) {
+            switch (event.code) {
+                case 'KeyC':
+                    event.preventDefault();
+                    this.toggleHighContrast();
+                    break;
+                case 'KeyM':
+                    event.preventDefault();
+                    this.toggleReducedMotion();
+                    break;
+                case 'KeyA':
+                    event.preventDefault();
+                    this.toggleAccessibilityPanel();
+                    break;
+            }
+        }
+        
+        // ESC key to show/hide accessibility controls
+        if (event.code === 'Escape' && !event.ctrlKey && !event.shiftKey) {
+            this.toggleAccessibilityPanel();
         }
     }
     
@@ -207,6 +250,105 @@ class BabyKeyboardGame {
         // Enable audio on first touch for mobile devices
         debugLog('First touch detected, enabling audio context');
         announceToScreenReader('Touch detected. Audio is now enabled!');
+    }
+    
+    handleOrientationChange() {
+        // Handle device orientation changes
+        setTimeout(() => {
+            this.handleResize();
+            debugLog(`Orientation changed to: ${window.orientation || screen.orientation?.angle || 'unknown'}`);
+        }, 100);
+    }
+    
+    handleMobileResize() {
+        // Handle iOS Safari viewport changes when keyboard appears/disappears
+        if (window.visualViewport) {
+            const viewport = window.visualViewport;
+            this.canvas.style.height = `${viewport.height}px`;
+            this.resizeCanvas();
+        }
+    }
+    
+    preventBounceScroll(event) {
+        // Prevent iOS Safari bounce scrolling
+        if (event.target === document.body) {
+            event.preventDefault();
+        }
+    }
+    
+    setupAccessibilityControls() {
+        const highContrastBtn = document.getElementById('toggleHighContrast');
+        const reducedMotionBtn = document.getElementById('toggleReducedMotion');
+        const accessibilityPanelBtn = document.getElementById('toggleAccessibilityPanel');
+        
+        if (highContrastBtn) {
+            highContrastBtn.addEventListener('click', this.toggleHighContrast.bind(this));
+        }
+        
+        if (reducedMotionBtn) {
+            reducedMotionBtn.addEventListener('click', this.toggleReducedMotion.bind(this));
+        }
+        
+        if (accessibilityPanelBtn) {
+            accessibilityPanelBtn.addEventListener('click', this.toggleAccessibilityPanel.bind(this));
+        }
+        
+        // Check for system preferences
+        this.checkSystemAccessibilityPreferences();
+    }
+    
+    checkSystemAccessibilityPreferences() {
+        // Check for system high contrast preference
+        if (window.matchMedia('(prefers-contrast: high)').matches) {
+            this.toggleHighContrast(true);
+        }
+        
+        // Check for system reduced motion preference
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            this.toggleReducedMotion(true);
+        }
+    }
+    
+    toggleHighContrast(force = null) {
+        this.accessibilitySettings.highContrast = force !== null ? force : !this.accessibilitySettings.highContrast;
+        
+        if (this.accessibilitySettings.highContrast) {
+            document.body.classList.add('high-contrast');
+            announceToScreenReader('High contrast mode enabled');
+        } else {
+            document.body.classList.remove('high-contrast');
+            announceToScreenReader('High contrast mode disabled');
+        }
+        
+        debugLog(`High contrast: ${this.accessibilitySettings.highContrast ? 'ON' : 'OFF'}`);
+    }
+    
+    toggleReducedMotion(force = null) {
+        this.accessibilitySettings.reducedMotion = force !== null ? force : !this.accessibilitySettings.reducedMotion;
+        
+        if (this.accessibilitySettings.reducedMotion) {
+            document.body.classList.add('reduced-motion');
+            announceToScreenReader('Reduced motion enabled');
+        } else {
+            document.body.classList.remove('reduced-motion');
+            announceToScreenReader('Reduced motion disabled');
+        }
+        
+        debugLog(`Reduced motion: ${this.accessibilitySettings.reducedMotion ? 'ON' : 'OFF'}`);
+    }
+    
+    toggleAccessibilityPanel() {
+        const panel = document.getElementById('accessibilityControls');
+        if (panel) {
+            const isHidden = panel.classList.contains('hidden');
+            if (isHidden) {
+                panel.classList.remove('hidden');
+                announceToScreenReader('Accessibility controls shown');
+            } else {
+                panel.classList.add('hidden');
+                announceToScreenReader('Accessibility controls hidden');
+            }
+        }
     }
     
     showStartScreen() {

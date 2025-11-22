@@ -1,0 +1,54 @@
+# Baby Keyboard Smashing Game - Netlify Configuration
+
+# Build settings
+[build]
+  # Build command
+  command = "npm run build"
+  # Output directory
+  publish = "dist"
+  # Environment variables
+  environment = { NODE_VERSION = "18", NODE_ENV = "production", GENERATE_SOURCEMAP = "false" }
+
+# Header rules for optimal caching and security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Content Security Policy for baby game safety
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; media-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self';"
+    # Performance headers
+    Accept-CH = "DPR, Viewport-Width, Width"
+
+# Cache static assets for 1 year
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache HTML files for 1 hour (to allow for updates)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Redirect rules for SPA behavior
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Plugin configuration
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs]
+    performance_budget = 0.8
+    accessibility_budget = 0.9
+
+# Form handling (for potential feedback forms)
+[template.environment]
+  REVIEW_ID = "baby-game-review"

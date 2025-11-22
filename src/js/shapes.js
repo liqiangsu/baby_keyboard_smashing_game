@@ -67,7 +67,7 @@ class Shape {
         
         // Set rotation properties
         this.rotation = randomBetween(0, Math.PI * 2);
-        this.rotationSpeed = randomBetween(-0.02, 0.02);
+        this.rotationSpeed = randomBetween(-0.005, 0.005);
         
         // Effect-specific initialization
         this.initEffect();
@@ -80,7 +80,7 @@ class Shape {
             case 'explosion':
                 this.lifespan = CONFIG.shapes.animationDuration * 1.5;
                 this.maxSize *= 1.5;
-                this.rotationSpeed *= 3;
+                this.rotationSpeed *= 1.5;
                 break;
                 
             case 'fireworks':
@@ -116,7 +116,7 @@ class Shape {
                 y: randomBetween(-this.maxSize * 0.5, this.maxSize * 0.5),
                 size: randomBetween(2, 6),
                 rotation: randomBetween(0, Math.PI * 2),
-                speed: randomBetween(0.02, 0.05)
+                speed: randomBetween(0.005, 0.015)
             });
         }
     }
