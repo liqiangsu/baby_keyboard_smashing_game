@@ -13,7 +13,8 @@ import {
     debugLog, 
     announceToScreenReader,
     debounce,
-    isTouchDevice 
+    isTouchDevice,
+    setEmojiMode
 } from './utils.js';
 
 class BabyKeyboardGame {
@@ -61,7 +62,8 @@ class BabyKeyboardGame {
         this.accessibilitySettings = {
             highContrast: false,
             reducedMotion: false,
-            soundEnabled: true
+            soundEnabled: true,
+            emojiMode: true
         };
         
         this.init();
@@ -237,6 +239,10 @@ class BabyKeyboardGame {
                     event.preventDefault();
                     this.toggleAccessibilityPanel();
                     break;
+                case 'KeyE':
+                    event.preventDefault();
+                    this.toggleEmojiMode();
+                    break;
             }
         }
         
@@ -280,6 +286,7 @@ class BabyKeyboardGame {
         const highContrastBtn = document.getElementById('toggleHighContrast');
         const reducedMotionBtn = document.getElementById('toggleReducedMotion');
         const accessibilityPanelBtn = document.getElementById('toggleAccessibilityPanel');
+        const emojiModeBtn = document.getElementById('toggleEmojiMode');
         
         if (highContrastBtn) {
             highContrastBtn.addEventListener('click', this.toggleHighContrast.bind(this));
@@ -291,6 +298,10 @@ class BabyKeyboardGame {
         
         if (accessibilityPanelBtn) {
             accessibilityPanelBtn.addEventListener('click', this.toggleAccessibilityPanel.bind(this));
+        }
+        
+        if (emojiModeBtn) {
+            emojiModeBtn.addEventListener('click', this.toggleEmojiMode.bind(this));
         }
         
         // Check for system preferences
@@ -337,6 +348,23 @@ class BabyKeyboardGame {
         debugLog(`Reduced motion: ${this.accessibilitySettings.reducedMotion ? 'ON' : 'OFF'}`);
     }
     
+    toggleEmojiMode(force = null) {
+        this.accessibilitySettings.emojiMode = force !== null ? force : !this.accessibilitySettings.emojiMode;
+        
+        // Update the CONFIG
+        setEmojiMode(this.accessibilitySettings.emojiMode);
+        
+        if (this.accessibilitySettings.emojiMode) {
+            document.body.classList.add('emoji-mode');
+            announceToScreenReader('Emoji mode enabled! Shapes will now show as fun emojis like cars, animals, and toys!');
+        } else {
+            document.body.classList.remove('emoji-mode');
+            announceToScreenReader('Emoji mode disabled! Shapes will show as geometric shapes.');
+        }
+        
+        debugLog(`Emoji mode: ${this.accessibilitySettings.emojiMode ? 'ON' : 'OFF'}`);
+    }
+
     toggleAccessibilityPanel() {
         const panel = document.getElementById('accessibilityControls');
         if (panel) {

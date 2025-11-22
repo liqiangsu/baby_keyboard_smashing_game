@@ -27,7 +27,17 @@ export const CONFIG = {
         maxSize: 120,
         animationDuration: 3000,
         fadeOutDuration: 1500,
-        maxActiveShapes: 15
+        maxActiveShapes: 15,
+        emojiMode: true
+    },
+    emojis: {
+        // Baby-friendly emoji collections
+        vehicles: ['🚗', '🚕', '🚙', '🚌', '🚎', '🚐', '🚛', '🚜', '🏎️', '🚓', '🚑', '🚒', '✈️', '🚁', '🚢', '⛵'],
+        animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐸', '🐙', '🦋', '🐝', '🐛', '🦆', '🐧'],
+        food: ['🍎', '🍌', '🍊', '🍇', '🍓', '🥕', '🍅', '🍞', '🧀', '🍪', '🍰', '🍭', '🍯', '🥛', '🧁', '🍒'],
+        toys: ['⚽', '🏀', '🎾', '🎲', '🧸', '🪀', '🎨', '🎯', '🎪', '🎠', '🎡', '🎢', '🚀', '🛸', '🎈', '🎁'],
+        nature: ['🌸', '🌻', '🌺', '🌷', '🌹', '🌼', '🌳', '🌲', '🍀', '🌿', '🌈', '⭐', '🌟', '💫', '☀️', '🌙'],
+        faces: ['😊', '😄', '😆', '🤗', '😍', '🥰', '😘', '😋', '😎', '🤩', '😇', '🙂', '😉', '😌', '☺️', '😚']
     },
     particles: {
         count: 8,
@@ -83,6 +93,84 @@ export function randomBetween(min, max) {
  */
 export function randomIntBetween(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Get random emoji from a category or all emojis
+ * @param {string} category - Category name ('vehicles', 'animals', 'food', 'toys', 'nature', 'faces') or 'all'
+ * @returns {string} Random emoji
+ */
+export function getRandomEmoji(category = 'all') {
+    const { emojis } = CONFIG;
+    
+    if (category === 'all') {
+        // Get random emoji from all categories
+        const allCategories = Object.keys(emojis);
+        const randomCategory = allCategories[Math.floor(Math.random() * allCategories.length)];
+        const categoryEmojis = emojis[randomCategory];
+        return categoryEmojis[Math.floor(Math.random() * categoryEmojis.length)];
+    }
+    
+    if (emojis[category]) {
+        const categoryEmojis = emojis[category];
+        return categoryEmojis[Math.floor(Math.random() * categoryEmojis.length)];
+    }
+    
+    // Fallback to a happy face if category not found
+    return '😊';
+}
+
+/**
+ * Get emoji based on key type for more meaningful representation
+ * @param {string} keyType - Type of key pressed
+ * @param {string} keyChar - Character of the key
+ * @returns {string} Appropriate emoji
+ */
+export function getEmojiForKey(keyType, keyChar) {
+    switch (keyType) {
+        case 'letter':
+            // Map specific letters to themed emojis
+            const letterEmojiMap = {
+                'a': '🍎', 'b': '🐻', 'c': '🚗', 'd': '🐶', 'e': '🐘',
+                'f': '🐸', 'g': '🦒', 'h': '🏠', 'i': '🍦', 'j': '✈️',
+                'k': '🪁', 'l': '🦁', 'm': '🐭', 'n': '🌙', 'o': '🐙',
+                'p': '🐼', 'q': '👸', 'r': '🚀', 's': '⭐', 't': '🚂',
+                'u': '☂️', 'v': '🚐', 'w': '🐋', 'x': '❌', 'y': '💛', 'z': '🦓'
+            };
+            return letterEmojiMap[keyChar?.toLowerCase()] || getRandomEmoji('animals');
+            
+        case 'number':
+            // Numbers get counting emojis or number-related items
+            const numberEmojiMap = {
+                '0': '⭕', '1': '1️⃣', '2': '2️⃣', '3': '3️⃣', '4': '4️⃣',
+                '5': '5️⃣', '6': '6️⃣', '7': '7️⃣', '8': '8️⃣', '9': '9️⃣'
+            };
+            return numberEmojiMap[keyChar] || getRandomEmoji('toys');
+            
+        case 'space':
+            return '🚀'; // Space = rocket
+            
+        case 'enter':
+            return '⭐'; // Enter = star
+            
+        case 'arrow':
+            return '🏃'; // Arrow = running
+            
+        case 'punctuation':
+            return getRandomEmoji('faces');
+            
+        default:
+            return getRandomEmoji('toys');
+    }
+}
+
+/**
+ * Toggle emoji mode in CONFIG
+ * @param {boolean} enabled - Whether to enable emoji mode
+ */
+export function setEmojiMode(enabled) {
+    CONFIG.shapes.emojiMode = enabled;
+    debugLog(`Emoji mode ${enabled ? 'enabled' : 'disabled'}`);
 }
 
 /**

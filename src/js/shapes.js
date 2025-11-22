@@ -12,7 +12,8 @@ import {
     easeOut,
     easeBounce,
     ObjectPool,
-    debugLog 
+    debugLog,
+    getEmojiForKey
 } from './utils.js';
 
 /**
@@ -51,7 +52,7 @@ class Shape {
         this.trails = [];
     }
     
-    init(x, y, type, color, effect = 'normal') {
+    init(x, y, type, color, effect = 'normal', keyInfo = null) {
         this.reset();
         this.x = x;
         this.y = y;
@@ -60,6 +61,14 @@ class Shape {
         this.effect = effect;
         this.createdAt = performance.now();
         this.isActive = true;
+        this.keyInfo = keyInfo;
+        
+        // Set emoji if in emoji mode
+        if (CONFIG.shapes.emojiMode && keyInfo) {
+            this.emoji = getEmojiForKey(keyInfo.type, keyInfo.character);
+        } else {
+            this.emoji = null;
+        }
         
         // Set size based on shape type
         this.maxSize = randomBetween(CONFIG.shapes.minSize, CONFIG.shapes.maxSize);
@@ -245,6 +254,13 @@ class Shape {
     renderShapeType(ctx) {
         const halfSize = this.size / 2;
         
+        // Render emoji if in emoji mode
+        if (CONFIG.shapes.emojiMode && this.emoji) {
+            this.renderEmoji(ctx);
+            return;
+        }
+        
+        // Render geometric shapes
         switch (this.type) {
             case 'circle':
                 this.renderCircle(ctx, halfSize);
@@ -269,6 +285,24 @@ class Shape {
             default:
                 this.renderCircle(ctx, halfSize);
         }
+    }
+    
+    renderEmoji(ctx) {
+        // Set font size based on shape size
+        const fontSize = this.size * 0.8;
+        ctx.font = `${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Add subtle glow effect for emojis
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 10;
+        
+        // Render the emoji
+        ctx.fillText(this.emoji, 0, 0);
+        
+        // Reset shadow
+        ctx.shadowBlur = 0;
     }
     
     renderCircle(ctx, radius) {
@@ -445,7 +479,7 @@ export class ShapeManager {
         const color = getRandomColor();
         const effect = keyInfo.effect || 'normal';
         
-        shape.init(position.x, position.y, shapeType, color, effect);
+        shape.init(position.x, position.y, shapeType, color, effect, keyInfo);
         this.shapes.push(shape);
         
         // Limit active shapes for performance

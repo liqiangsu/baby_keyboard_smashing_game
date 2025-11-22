@@ -97,8 +97,6 @@ class Particle {
         }
         
         this.updateColor();
-        
-        debugLog(`Created ${isClickParticle ? 'click ' : ''}particle at (${Math.round(x)}, ${Math.round(y)})`);
     }
     
     update(deltaTime) {
@@ -453,8 +451,6 @@ export class ParticleSystem {
             
             this.particles.push(particle);
         }
-        
-        debugLog(`Created particle burst at (${Math.round(x)}, ${Math.round(y)}) with ${count} particles`);
     }
     
     update(deltaTime) {
